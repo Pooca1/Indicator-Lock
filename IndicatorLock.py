@@ -11,23 +11,26 @@ from winotify import Notification,audio
 import locale
 from googletrans import Translator
 
+#-----------Translate sentences-----------
 dist = locale.getdefaultlocale()
 translator = Translator()
-result = translator.translate(' is in service', src='en', dest=dist[0][:2])
-title_text = str(result.text)
-result = translator.translate(' is running in the background. \nTo close the application, you just have to just make a right click on the icon in the taskbar.', src='en', dest=dist[0][:2])
-notif_result = str(result.text)
+text_menu = translator.translate('Quit', src='en', dest=dist[0][:2])
+text_pave = translator.translate('Number pad', src='en', dest=dist[0][:2])
+text_maj = translator.translate('Uppercase', src='en', dest=dist[0][:2])
+text_defil = translator.translate('Scrolling', src='en', dest=dist[0][:2])
+title_text = translator.translate(' is in service', src='en', dest=dist[0][:2])
+notif_result = translator.translate(' is running in the background. \nTo close the application, you just have to just make a right click on the icon in the taskbar.', src='en', dest=dist[0][:2])
 
-#-----------Notification de lancement de l'appli-----------
+#-----------App launch notification-----------
 toast = Notification(app_id="Indicator Lock",
-                     title="Indicator Locks "+title_text,
-                     msg="Indicator Lock "+notif_result,
+                     title="Indicator Lock "+title_text.text,
+                     msg="Indicator Lock "+notif_result.text,
                      icon=os.path.join(os.path.dirname(os.path.abspath(__file__)),"caps-lock.ico"))
 toast.set_audio(audio.Reminder, loop=False)
 toast.show()
 
 
-#-----------Configuration de la fenêtre root----------------
+#-----------Configuration of the root window----------------
 root = Tk.Tk()
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
@@ -35,7 +38,7 @@ app_width = 350
 app_height = 40
 x = (screen_width / 2) - (app_width / 2)
 y = 0
-root.title("CapsLock")
+root.title("Indicator Lock")
 
 root.attributes("-alpha", 0)
 root.configure(background='Black')
@@ -46,32 +49,48 @@ Text = Tk.Label(root, text="")
 
 #-----------Variables----------------
 n = 0
-h= 1
-j =1
-maj=0
-pave=1
-defil=0
+h = 1
+j = 1
+pave = 0
+maj = 0
+defil = 0
 
 
-#-----------Fonction d'arrêt du système----------------
+
+
+def init():
+    global pave, maj, defil
+    hllDll = ctypes.WinDLL("User32.dll")
+    VK_CAPITAL = 0x14
+    VK_NUMLOCK = 0x90
+    VK_SCROLL = 0x91
+    maj = hllDll.GetKeyState(VK_CAPITAL)
+    pave = hllDll.GetKeyState(VK_NUMLOCK)
+    defil = hllDll.GetKeyState(VK_SCROLL)
+
+    indic(pave, maj, defil)
+
+
+#-----------System shutdown function----------------
 def stopthis():
     icon.stop()
     root.quit()
     os._exit(1)
 
 
-#-----------Configuration de l'icone dans la barre des tâches----------------
+#-----------Configuration of the icon in the taskbar----------------
 image = Image.open("caps-lock.ico")
-menu = pystray.Menu(item("Quitter", stopthis))
-icon = pystray.Icon("name", image, "CapsLock", menu)
+
+menu = pystray.Menu(item(text_menu.text, stopthis))
+icon = pystray.Icon("name", image, "Indicator Lock", menu)
 icon.run_detached()
 
 
-def update_window(n):   #gère la transparence du root
+def update_window(n):   #manages root transparency
     root.attributes("-alpha", n)
 
 
-def show(key):      #Détecte les touches num, maj et scroll
+def show(key):      #Detects num, shift and scroll keys
     if key == Key.caps_lock:
 
         CAPSLOCK_STATE(maj,pave,defil)
@@ -84,7 +103,7 @@ def show(key):      #Détecte les touches num, maj et scroll
 
 
 
-def NUMLOCK_STATE(maj,pave,defil):          #gère l'état du pavé numérique et le renvoie
+def NUMLOCK_STATE(maj,pave,defil):#manages the state of the numeric keypad and returns it
     hllDll = ctypes.WinDLL("User32.dll")
     VK_NUMLOCK = 0x90
     b = hllDll.GetKeyState(VK_NUMLOCK)
@@ -94,10 +113,11 @@ def NUMLOCK_STATE(maj,pave,defil):          #gère l'état du pavé numérique e
     else:
         pave = 0
     indic(pave, maj, defil)
-    texte(b, "Pavé numérique")
+
+    texte(b, text_pave.text)
 
 
-def CAPSLOCK_STATE(maj, pave, defil):       #gère l'état des majuscules et le renvoie
+def CAPSLOCK_STATE(maj, pave, defil):#manages the status of capital letters and returns it
     hllDll = ctypes.WinDLL("User32.dll")
     VK_CAPITAL = 0x14
     a = hllDll.GetKeyState(VK_CAPITAL)
@@ -107,10 +127,10 @@ def CAPSLOCK_STATE(maj, pave, defil):       #gère l'état des majuscules et le 
     else:
         maj = 0
     indic(pave, maj,defil)
-    texte(a, "Majuscule")
+    texte(a, text_maj.text)
 
 
-def SCROLLOCK_STATE(maj,pave,defil):        #gère l'état du défilement et le renvoie
+def SCROLLOCK_STATE(maj,pave,defil):#manages the state of the scroll and returns it
     hllDll = ctypes.WinDLL("User32.dll")
     VK_SCROLL = 0x91
     c = hllDll.GetKeyState(VK_SCROLL)
@@ -121,11 +141,11 @@ def SCROLLOCK_STATE(maj,pave,defil):        #gère l'état du défilement et le 
         defil = 0
 
     indic(pave, maj,defil)
-    texte(c, "Défilement")
+    texte(c, text_defil.text)
 
 
 
-def affichage(x):           #fais le fade in et le fade out
+def affichage(x):#do the fade in and fade out
 
     if x == 0:
         update_window(0.6)
@@ -140,7 +160,7 @@ def affichage(x):           #fais le fade in et le fade out
 
 
 
-def texte(p, t):            #affichage au user de l'état des touches
+def texte(p, t):#user display of key status
     if p == 65409:
         Text.config(background="Black", foreground="Lime", text=t+" activée 😉", font=("Tahoma", 15))
     else:
@@ -150,7 +170,7 @@ def texte(p, t):            #affichage au user de l'état des touches
     progressbar()
 
 
-def progressbar():          #timer de l'affichage du root
+def progressbar():#root display timer
     global h
     global timer
     try:
@@ -162,50 +182,8 @@ def progressbar():          #timer de l'affichage du root
 
 
 
-    """global h
-    h += 1
-    myprogress['value'] = h
-    if myprogress['value'] > 100:
-        affichage(0)
-        h = 0
-    else:
-        root
 
-    global j
-    if h == 0:
-        h = 1
-        timing = 0
-        timing_max = int(time.time())
-        while timing < timing_max + 2:
-            timing = int(time.time())
-            if (j == 0):
-                timing = -1
-                break
-        if timing > 0:
-            affichage(0)
-            h = 0
-            j = 1
-        else:
-            h = 0
-            j = 1
-            progressbar()
-    else:
-        j = 0
-        h = 0
-
-    m = myprogress["value"]
-    if m < 100:
-        myprogress["value"]=m+2
-        root.after(25,progressbar)
-    else:
-        affichage(0)
-        myprogress["value"]=0
-
-def timer():
-    t = threading.Timer(0.0001, progressbar)
-    t.start()
-"""
-#-----------Coordonnées de aroot et la réutilisation----------------
+#-----------Coordinates of aroot and reuse----------------
 data ={
     'w':((screen_width * 84) / 85) - (app_width / 2),
     'z':(screen_height * 11) / 12
@@ -218,7 +196,7 @@ except:
     pass
 
 
-#-----------Configuration de la fenêtre aroot----------------
+#-----------Configuration of the aroot window----------------
 aroot = Tk.Toplevel(root)
 w = int(data['w'])
 z = int(data['z'])
@@ -231,11 +209,10 @@ c = Tk.Canvas(aroot, bg="black", highlightthickness=0)
 c.pack()
 
 
-def indic(n, m,s):          #gère l'apparition des lights et leur modification
+def indic(n, m,s):          #manages the appearance of lights and their modification
     x1,y1,x2,y2 = 14,10,24,20
 
     num,maj,scroll = c.create_oval(x1, y1, x2, y2, fill="black"),c.create_oval(x1 + 15, y1, x2 + 15, y2, fill="black"),c.create_oval(x1 + 30, y1, x2 + 30, y2, fill="black")
-
 
     if n == 1:
         c.itemconfig(num,fill="lime")
@@ -250,8 +227,6 @@ def indic(n, m,s):          #gère l'apparition des lights et leur modification
     else:
         c.itemconfig(scroll, fill="red")
 
-
-indic(1, 0, 0)
 
 
 
@@ -280,7 +255,7 @@ def savecoord(event):           #Enregistrement des coordonnées
     with open('coord.txt','w') as coordonnee:
         json.dump(coord, coordonnee)
 
-
+init()
 #-----------Détecte les touches et les souris à tout moment et les .pack----------------
 listener = Listener(on_press=show)
 listener.start()
