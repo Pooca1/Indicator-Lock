@@ -86,7 +86,7 @@ icon = pystray.Icon("name", image, "Indicator Lock", menu)
 icon.run_detached()
 
 
-def update_window(n):   #manages root transparency
+def update_window(n):   #Manages root transparency
     root.attributes("-alpha", n)
 
 
@@ -103,7 +103,7 @@ def show(key):      #Detects num, shift and scroll keys
 
 
 
-def NUMLOCK_STATE(maj,pave,defil):#manages the state of the numeric keypad and returns it
+def NUMLOCK_STATE(maj,pave,defil):#Manages the state of the numeric keypad and returns it
     hllDll = ctypes.WinDLL("User32.dll")
     VK_NUMLOCK = 0x90
     b = hllDll.GetKeyState(VK_NUMLOCK)
@@ -117,7 +117,7 @@ def NUMLOCK_STATE(maj,pave,defil):#manages the state of the numeric keypad and r
     texte(b, text_pave.text)
 
 
-def CAPSLOCK_STATE(maj, pave, defil):#manages the status of capital letters and returns it
+def CAPSLOCK_STATE(maj, pave, defil):#Manages the status of capital letters and returns it
     hllDll = ctypes.WinDLL("User32.dll")
     VK_CAPITAL = 0x14
     a = hllDll.GetKeyState(VK_CAPITAL)
@@ -130,7 +130,7 @@ def CAPSLOCK_STATE(maj, pave, defil):#manages the status of capital letters and 
     texte(a, text_maj.text)
 
 
-def SCROLLOCK_STATE(maj,pave,defil):#manages the state of the scroll and returns it
+def SCROLLOCK_STATE(maj,pave,defil):#Manages the state of the scroll and returns it
     hllDll = ctypes.WinDLL("User32.dll")
     VK_SCROLL = 0x91
     c = hllDll.GetKeyState(VK_SCROLL)
@@ -145,7 +145,7 @@ def SCROLLOCK_STATE(maj,pave,defil):#manages the state of the scroll and returns
 
 
 
-def affichage(x):#do the fade in and fade out
+def affichage(x):#Fade in and fade out
 
     if x == 0:
         update_window(0.6)
@@ -160,7 +160,7 @@ def affichage(x):#do the fade in and fade out
 
 
 
-def texte(p, t):#user display of key status
+def texte(p, t):#User display of key status
     if p == 65409:
         Text.config(background="Black", foreground="Lime", text=t+" activée 😉", font=("Tahoma", 15))
     else:
@@ -170,7 +170,7 @@ def texte(p, t):#user display of key status
     progressbar()
 
 
-def progressbar():#root display timer
+def progressbar():#Root display timer
     global h
     global timer
     try:
@@ -209,7 +209,7 @@ c = Tk.Canvas(aroot, bg="black", highlightthickness=0)
 c.pack()
 
 
-def indic(n, m,s):          #manages the appearance of lights and their modification
+def indic(n, m,s):          #Manages the appearance of lights and their modification
     x1,y1,x2,y2 = 14,10,24,20
 
     num,maj,scroll = c.create_oval(x1, y1, x2, y2, fill="black"),c.create_oval(x1 + 15, y1, x2 + 15, y2, fill="black"),c.create_oval(x1 + 30, y1, x2 + 30, y2, fill="black")
@@ -230,7 +230,7 @@ def indic(n, m,s):          #manages the appearance of lights and their modifica
 
 
 
-#gère le déplacement de aroot
+#Manages aroot's movement
 lastClickX = 0
 lastClickY = 0
 
@@ -251,12 +251,12 @@ def Dragging(event):
     }
 
 
-def savecoord(event):           #Enregistrement des coordonnées
+def savecoord(event):           #Save coordinates
     with open('coord.txt','w') as coordonnee:
         json.dump(coord, coordonnee)
 
 init()
-#-----------Détecte les touches et les souris à tout moment et les .pack----------------
+#-----------Detects keys, mouse and .pack----------------
 listener = Listener(on_press=show)
 listener.start()
 Text.pack()
