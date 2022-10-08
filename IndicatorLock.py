@@ -11,7 +11,7 @@ from winotify import Notification,audio
 import locale
 from googletrans import Translator
 
-#-----------Translate sentences-----------
+#-----------Translated sentences-----------
 dist = locale.getdefaultlocale()
 translator = Translator()
 text_menu = translator.translate('Quit', src='en', dest=dist[0][:2])
