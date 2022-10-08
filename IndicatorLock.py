@@ -8,12 +8,20 @@ import pystray
 from PIL import Image, ImageTk
 import os
 from winotify import Notification,audio
+import locale
+from googletrans import Translator
 
+dist = locale.getdefaultlocale()
+translator = Translator()
+result = translator.translate(' is in service', src='en', dest=dist[0][:2])
+title_text = str(result.text)
+result = translator.translate(' is running in the background. \nTo close the application, you just have to just make a right click on the icon in the taskbar.', src='en', dest=dist[0][:2])
+notif_result = str(result.text)
 
 #-----------Notification de lancement de l'appli-----------
 toast = Notification(app_id="Indicator Lock",
-                     title="Indicator Lock est en fonctionnement",
-                     msg="Indicator Lock fonctionne en arrière-plan. Si vous souhaitez fermer l'application, elle se trouve dans la barre des tâches",
+                     title="Indicator Locks "+title_text,
+                     msg="Indicator Lock "+notif_result,
                      icon=os.path.join(os.path.dirname(os.path.abspath(__file__)),"caps-lock.ico"))
 toast.set_audio(audio.Reminder, loop=False)
 toast.show()
